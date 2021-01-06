@@ -4,16 +4,27 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/hooneun/microservices-tutorial/handlers"
 )
 
 func main() {
 	l := log.New(os.Stdout, "product-api", log.LstdFlags)
-	h := handlers.NewHello(l)
+	hh := handlers.NewHello(l)
+	gh := handlers.NewGoodbye(l)
 
 	sm := http.NewServeMux()
-	sm.Handle("/", h)
+	sm.Handle("/", hh)
+	sm.Handle("/goodbye", gh)
 
-	http.ListenAndServe(":8080", sm)
+	s := http.Server{
+		Addr:         ":8080",
+		Handler:      sm,
+		IdleTimeout:  120 * time.Second,
+		ReadTimeout:  1 * time.Second,
+		WriteTimeout: 1 * time.Second,
+	}
+
+	s.ListenAndServe()
 }
